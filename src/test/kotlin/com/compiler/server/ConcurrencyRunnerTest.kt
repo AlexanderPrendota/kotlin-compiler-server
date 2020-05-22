@@ -1,13 +1,14 @@
 package com.compiler.server
 
 import com.compiler.server.base.BaseExecutorTest
+import com.compiler.server.base.TestCompiler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
 class ConcurrencyRunnerTest : BaseExecutorTest() {
-  @Test
+  @TestCompiler
   fun `a lot of hello word test JVM`() {
     runManyTest {
       run(

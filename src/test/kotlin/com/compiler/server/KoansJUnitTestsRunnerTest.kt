@@ -1,11 +1,11 @@
 package com.compiler.server
 
 import com.compiler.server.base.BaseJUnitTest
-import org.junit.jupiter.api.Test
+import com.compiler.server.base.TestCompiler
 
 class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
 
-  @Test
+  @TestCompiler
   fun `base junit test`() {
     runKoanTest(
       "fun start(): String = \"OK\"",
@@ -13,7 +13,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Named arguments`() {
     runKoanTest(
       "fun joinOptions(options: Collection<String>) = options.joinToString(prefix = \"[\", postfix = \"]\")",
@@ -21,7 +21,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Default arguments`() {
     runKoanTest(
       "fun foo(name: String, number: Int = 42, toUpperCase: Boolean = false) =\n        (if (toUpperCase) name.toUpperCase() else name) + number\n\nfun useFoo() = listOf(\n        foo(\"a\"),\n        foo(\"b\", number = 1),\n        foo(\"c\", toUpperCase = true),\n        foo(name = \"d\", number = 2, toUpperCase = true)\n)",
@@ -29,7 +29,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test lambdas`() {
     runKoanTest(
       "fun containsEven(collection: Collection<Int>): Boolean = collection.any { it % 2 == 0 }",
@@ -37,7 +37,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Strings`() {
     runKoanTest(
       "val month = \"(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\"\n\nfun getPattern(): String = \"\"\"\\d{2} \${month} \\d{4}\"\"\"",
@@ -46,7 +46,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
 
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Data classes`() {
     runKoanTest(
       "data class Person(val name: String, val age: Int)\n\nfun getPeople(): List<Person> {\n    return listOf(Person(\"Alice\", 29), Person(\"Bob\", 31))\n}",
@@ -54,7 +54,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Nullable types`() {
     runKoanTest(
       "fun sendMessageToClient(\n        client: Client?, message: String?, mailer: Mailer\n){\n    val email = client?.personalInfo?.email\n    if (email != null && message != null) {\n        mailer.sendMessage(email, message)\n    }\n}\n\nclass Client (val personalInfo: PersonalInfo?)\nclass PersonalInfo (val email: String?)\ninterface Mailer {\n    fun sendMessage(email: String, message: String)\n}",
@@ -64,7 +64,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
   }
 
 
-  @Test
+  @TestCompiler
   fun `koans test Smart casts`() {
     runKoanTest(
       "fun eval(expr: Expr): Int =\n        when (expr) {\n            is Num -> expr.value\n            is Sum -> eval(expr.left) + eval(expr.right)\n            else -> throw IllegalArgumentException(\"Unknown expression\")\n        }\n\ninterface Expr\nclass Num(val value: Int) : Expr\nclass Sum(val left: Expr, val right: Expr) : Expr",
@@ -73,7 +73,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
 
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Extension functions`() {
     runKoanTest(
       "fun Int.r(): RationalNumber = RationalNumber(this, 1)\nfun Pair<Int, Int>.r(): RationalNumber = RationalNumber(first, second)\n\ndata class RationalNumber(val numerator: Int, val denominator: Int)",
@@ -81,7 +81,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Object expressions`() {
     runKoanTest(
       "import java.util.*\n\nfun getList(): List<Int> {\n    val arrayList = arrayListOf(1, 5, 2)\n    Collections.sort(arrayList, object : Comparator<Int> {\n    override fun compare(x: Int, y: Int) = y - x\n})\n    return arrayList\n}",
@@ -89,7 +89,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test SAM conversions`() {
     runKoanTest(
       "import java.util.*\n\nfun getList(): List<Int> {\n    val arrayList = arrayListOf(1, 5, 2)\n    Collections.sort(arrayList, { x, y -> y - x })\n    return arrayList\n}",
@@ -98,7 +98,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
 
   }
 
-  @Test
+  @TestCompiler
   fun `koans test -Extensions on collections`() {
     runKoanTest(
       "fun getList(): List<Int> {\n    return arrayListOf(1, 5, 2).sortedDescending()\n}",
@@ -106,7 +106,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test -Comparison`() {
     runKoanTest(
       "data class MyDate(val year: Int, val month: Int, val dayOfMonth: Int) : Comparable<MyDate> {\n    override fun compareTo(other: MyDate) = when {\n        year != other.year -> year - other.year\n        month != other.month -> month - other.month\n        else -> dayOfMonth - other.dayOfMonth\n    }\n}\n\nfun compare(date1: MyDate, date2: MyDate) = date1 < date2",
@@ -115,7 +115,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
 
   }
 
-  @Test
+  @TestCompiler
   fun `koans test in range`() {
     runKoanTest(
       "class DateRange(val start: MyDate, val endInclusive: MyDate){\n    operator fun contains(item: MyDate): Boolean = start <= item && item <= endInclusive\n}\n\nfun checkInRange(date: MyDate, first: MyDate, last: MyDate): Boolean {\n    return date in DateRange(first, last)\n}",
@@ -125,7 +125,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
 
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Range to`() {
     runKoanTest(
       "operator fun MyDate.rangeTo(other: MyDate) = DateRange(this, other)\n\nclass DateRange(override val start: MyDate, override val endInclusive: MyDate): ClosedRange<MyDate>\n\nfun checkInRange(date: MyDate, first: MyDate, last: MyDate): Boolean {\n    return date in first..last\n}",
@@ -135,7 +135,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
 
   }
 
-  @Test
+  @TestCompiler
   fun `koans test For loop`() {
     runKoanTest(
       "class DateRange(val start: MyDate, val end: MyDate): Iterable<MyDate>{\n    override fun iterator(): Iterator<MyDate> = DateIterator(this)\n}\n\nclass DateIterator(val dateRange:DateRange) : Iterator<MyDate> {\n    var current: MyDate = dateRange.start\n    override fun next(): MyDate {\n        val result = current\n        current = current.nextDay()\n        return result\n    }\n    override fun hasNext(): Boolean = current <= dateRange.end\n}\n\nfun iterateOverDateRange(firstDate: MyDate, secondDate: MyDate, handler: (MyDate) -> Unit) {\n    for (date in firstDate..secondDate) {\n        handler(date)\n    }\n}",
@@ -146,7 +146,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
 
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Operators overloading`() {
     runKoanTest(
       "import TimeInterval.*\n\ndata class MyDate(val year: Int, val month: Int, val dayOfMonth: Int)\n\nenum class TimeInterval { DAY, WEEK, YEAR }\n\noperator fun MyDate.plus(timeInterval: TimeInterval) = addTimeIntervals(timeInterval, 1)\n\nclass RepeatedTimeInterval(val timeInterval: TimeInterval, val number: Int)\noperator fun TimeInterval.times(number: Int) = RepeatedTimeInterval(this, number)\n\noperator fun MyDate.plus(timeIntervals: RepeatedTimeInterval) = addTimeIntervals(timeIntervals.timeInterval, timeIntervals.number)\n\nfun task1(today: MyDate): MyDate {\n    return today + YEAR + WEEK\n}\n\nfun task2(today: MyDate): MyDate {\n    return today + YEAR * 2 + WEEK * 3 + DAY * 5\n}",
@@ -155,7 +155,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Destructuring declarations`() {
     runKoanTest(
       "data class MyDate(val year: Int, val month: Int, val dayOfMonth: Int)\n\nfun isLeapDay(date: MyDate): Boolean {\n\n    val (year, month, dayOfMonth) = date\n\n    // 29 February of a leap year\n    return year % 4 == 0 && month == 2 && dayOfMonth == 29\n}",
@@ -163,7 +163,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Invoke`() {
     runKoanTest(
       "class Invokable {\n    var numberOfInvocations: Int = 0\n        private set\n    operator fun invoke(): Invokable {\n        numberOfInvocations++\n        return this\n    }\n}\n\nfun invokeTwice(invokable: Invokable) = invokable()()",
@@ -171,7 +171,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Introduction`() {
     runKoanTest(
       "fun Shop.getSetOfCustomers(): Set<Customer> = customers.toSet()",
@@ -181,7 +181,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Filter map`() {
     runKoanTest(
       "// Return the set of cities the customers are from\nfun Shop.getCitiesCustomersAreFrom(): Set<City> = customers.map { it.city }.toSet()\n\n// Return a list of the customers who live in the given city\nfun Shop.getCustomersFrom(city: City): List<Customer> = customers.filter { it.city == city }",
@@ -191,7 +191,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test All Any and other predicates`() {
     runKoanTest(
       "// Return true if all customers are from the given city\nfun Shop.checkAllCustomersAreFrom(city: City): Boolean = customers.all { it.city == city }\n\n// Return true if there is at least one customer from the given city\nfun Shop.hasCustomerFrom(city: City): Boolean = customers.any { it.city == city }\n\n// Return the number of customers from the given city\nfun Shop.countCustomersFrom(city: City): Int = customers.count { it.city == city }\n\n// Return a customer who lives in the given city, or null if there is none\nfun Shop.findAnyCustomerFrom(city: City): Customer? = customers.find { it.city == city }",
@@ -201,7 +201,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test FlatMap`() {
     runKoanTest(
       "// Return all products this customer has ordered\nval Customer.orderedProducts: Set<Product> get() {\n    return orders.flatMap { it.products }.toSet()\n}\n\n// Return all products that were ordered by at least one customer\nval Shop.allOrderedProducts: Set<Product> get() {\n    return customers.flatMap { it.orderedProducts }.toSet()\n}",
@@ -211,7 +211,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Max min`() {
     runKoanTest(
       "// Return a customer whose order count is the highest among all customers\nfun Shop.getCustomerWithMaximumNumberOfOrders(): Customer? = customers.maxBy { it.orders.size }\n\n// Return the most expensive product which has been ordered\nfun Customer.getMostExpensiveOrderedProduct(): Product? = orders.flatMap { it.products }.maxBy { it.price }",
@@ -221,7 +221,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test sort`() {
     runKoanTest(
       "// Return a list of customers, sorted by the ascending number of orders they made\nfun Shop.getCustomersSortedByNumberOfOrders(): List<Customer> = customers.sortedBy { it.orders.size }",
@@ -231,7 +231,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test sum`() {
     runKoanTest(
       "// Return the sum of prices of all products that a customer has ordered.\n// Note: the customer may order the same product for several times.\nfun Customer.getTotalOrderPrice(): Double = orders.flatMap { it.products }.sumByDouble { it.price }",
@@ -241,7 +241,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test GroupBy`() {
     runKoanTest(
       "// Return a map of the customers living in each city\nfun Shop.groupCustomersByCity(): Map<City, List<Customer>> = customers.groupBy { it.city }",
@@ -251,7 +251,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Partition`() {
     runKoanTest(
       "// Return customers who have more undelivered orders than delivered\nfun Shop.getCustomersWithMoreUndeliveredOrdersThanDelivered(): Set<Customer> = customers.filter {\n    val (delivered, undelivered) = it.orders.partition { it.isDelivered }\n    undelivered.size > delivered.size\n}.toSet()",
@@ -261,7 +261,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Fold`() {
     runKoanTest(
       "// Return the set of products that were ordered by every customer\nfun Shop.getSetOfProductsOrderedByEveryCustomer(): Set<Product> {\n    val allProducts = customers.flatMap { it.orders.flatMap { it.products }}.toSet()\n    return customers.fold(allProducts, {\n        orderedByAll, customer ->\n        orderedByAll.intersect(customer.orders.flatMap { it.products }.toSet())\n    })\n}",
@@ -271,7 +271,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Compound tasks`() {
     runKoanTest(
       "// Return the most expensive product among all delivered products\n// (use the Order.isDelivered flag)\nfun Customer.getMostExpensiveDeliveredProduct(): Product? {\n    return orders.filter { it.isDelivered }.flatMap { it.products }.maxBy { it.price }\n}\n\n// Return how many times the given product was ordered.\n// Note: a customer may order the same product for several times.\nfun Shop.getNumberOfTimesProductWasOrdered(product: Product): Int {\n    return customers.flatMap { it.getOrderedProductsList() }.count { it == product }\n}\n\nfun Customer.getOrderedProductsList(): List<Product> {\n    return orders.flatMap { it.products }\n}",
@@ -281,7 +281,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Get used to new style`() {
     runKoanTest(
       "fun doSomethingStrangeWithCollection(collection: Collection<String>): Collection<String>? {\n\n    val groupsByLength = collection. groupBy { s -> s.length }\n\n    val maximumSizeOfGroup = groupsByLength.values.map { group -> group.size }.max()\n\n    return groupsByLength.values.firstOrNull { group -> group.size == maximumSizeOfGroup }\n}",
@@ -291,7 +291,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Properties`() {
     runKoanTest(
       "class PropertyExample() {\n    var counter = 0\n    var propertyWithCounter: Int? = null\n        set(v: Int?) {\n            field = v\n            counter++\n        }\n}",
@@ -299,7 +299,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Lazy property`() {
     runKoanTest(
       "class LazyProperty(val initializer: () -> Int) {\n    var value: Int? = null\n    val lazy: Int\n        get() {\n            if (value == null) {\n                value = initializer()\n            }\n            return value!!\n        }\n}",
@@ -307,7 +307,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Delegates examples`() {
     runKoanTest(
       "class LazyProperty(val initializer: () -> Int) {\n    val lazyValue: Int by lazy(initializer)\n}",
@@ -315,7 +315,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Delegates how it works`() {
     runKoanTest(
       "import kotlin.properties.ReadWriteProperty\nimport kotlin.reflect.KProperty\n\nclass D {\n    var date: MyDate by EffectiveDate()\n}\n\nclass EffectiveDate<R> : ReadWriteProperty<R, MyDate> {\n\n    var timeInMillis: Long? = null\n\n    override fun getValue(thisRef: R, property: KProperty<*>): MyDate {\n        return timeInMillis!!.toDate()\n    }\n\n    override fun setValue(thisRef: R, property: KProperty<*>, value: MyDate) {\n        timeInMillis = value.toMillis()\n    }\n}",
@@ -324,7 +324,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Function literals with receiver`() {
     runKoanTest(
       "fun task(): List<Boolean> {\n    val isEven: Int.() -> Boolean = { this % 2 == 0 }\n    val isOdd: Int.() -> Boolean = { this % 2 != 0 }\n\n    return listOf(42.isOdd(), 239.isOdd(), 294823098.isEven())\n}",
@@ -332,7 +332,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test -String and map builders`() {
     runKoanTest(
       "import java.util.HashMap\n\nfun <K, V> buildMap(build: HashMap<K, V>.() -> Unit): Map<K, V> {\n    val map = HashMap<K, V>()\n    map.build()\n    return map\n}\n\nfun usage(): Map<Int, String> {\n    return buildMap {\n        put(0, \"0\")\n        for (i in 1..10) {\n            put(i, \"\$i\")\n        }\n    }\n}",
@@ -340,7 +340,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test The function apply`() {
     runKoanTest(
       "fun <T> T.myApply(f: T.() -> Unit): T { f(); return this }\n\nfun createString(): String {\n    return StringBuilder().myApply {\n        append(\"Numbers: \")\n        for (i in 1..10) {\n            append(i)\n        }\n    }.toString()\n}\n\nfun createMap(): Map<Int, String> {\n    return hashMapOf<Int, String>().myApply {\n        put(0, \"0\")\n        for (i in 1..10) {\n            put(i, \"\$i\")\n        }\n    }\n}",
@@ -348,7 +348,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Builders how it works`() {
     runKoanTest(
       "import Answer.*\n\nenum class Answer { a, b, c }\n\nval answers = mapOf<Int, Answer?>(\n        1 to c, 2 to b, 3 to b, 4 to c\n)",
@@ -356,7 +356,7 @@ class KoansJUnitTestsRunnerTest : BaseJUnitTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `koans test Generic functions`() {
     runKoanTest(
       "import java.util.*\n\nfun <T, C: MutableCollection<T>> Collection<T>.partitionTo(first: C, second: C, predicate: (T) -> Boolean): Pair<C, C> {\n    for (element in this) {\n        if (predicate(element)) {\n            first.add(element)\n        } else {\n            second.add(element)\n        }\n    }\n    return Pair(first, second)\n}\n\nfun partitionWordsAndLines() {\n    val (words, lines) = listOf(\"a\", \"a b\", \"c\", \"d e\").\n            partitionTo(ArrayList<String>(), ArrayList()) { s -> !s.contains(\" \") }\n    words == listOf(\"a\", \"c\")\n    lines == listOf(\"a b\", \"d e\")\n}\n\nfun partitionLettersAndOtherSymbols() {\n    val (letters, other) = setOf('a', '%', 'r', '}').\n            partitionTo(HashSet<Char>(), HashSet()) { c -> c in 'a'..'z' || c in 'A'..'Z'}\n    letters == setOf('a', 'r')\n    other == setOf('%', '}')\n}",

@@ -1,11 +1,12 @@
 package com.compiler.server
 
 import com.compiler.server.base.BaseExecutorTest
+import com.compiler.server.base.TestCompiler
 import org.junit.jupiter.api.Test
 
 class CommandLineArgumentsTest : BaseExecutorTest() {
 
-  @Test
+  @TestCompiler
   fun `command line arguments jvm test`() {
     run(
       code = "fun main(args: Array<String>) {\n    println(args[0])\n    println(args[1])\n}",
@@ -14,7 +15,7 @@ class CommandLineArgumentsTest : BaseExecutorTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `command line string arguments jvm test`() {
     run(
       code = "fun main(args: Array<String>) {\n    println(args[0])\n    println(args[1])\n}",

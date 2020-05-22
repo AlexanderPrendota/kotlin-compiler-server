@@ -1,9 +1,8 @@
 package com.compiler.server
 
-import com.compiler.server.base.BaseExecutorTest
-import com.compiler.server.base.renderErrorDescriptors
+import com.compiler.server.base.*
+import com.compiler.server.generator.ErrorsChunk
 import com.compiler.server.model.ErrorDescriptor
-import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -13,7 +12,7 @@ class ResourceCompileTest : BaseExecutorTest() {
   private val testDir = "src/test/resources/test-compile-data"
   private val testFiles = File(testDir).listFiles()
 
-  @Test
+  @TestCompiler
   fun `compile test from resource folder`() {
     assertNotNull(testFiles) { "Can not init test directory" }
     assertTrue(testFiles.isNotEmpty(), "No files in test directory")
@@ -21,8 +20,11 @@ class ResourceCompileTest : BaseExecutorTest() {
     testFiles.forEach { file ->
       val code = file.readText()
 
-      val jvmResult = run(code, "")
-      val errorsJvm = validateErrors(jvmResult.errors)
+      val jvmResultErrors = when(val result = run(code, "")) {
+        is SynchronousResult -> result.result.errors
+        is StreamingResult -> (result.result.first() as ErrorsChunk).errors
+      }
+      val errorsJvm = validateErrors(jvmResultErrors)
       if (errorsJvm != null) badMap[file.name + ":JVM"] = errorsJvm
 
       val jsResult = translateToJs(code)

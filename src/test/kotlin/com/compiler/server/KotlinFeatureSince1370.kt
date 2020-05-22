@@ -1,11 +1,11 @@
 package com.compiler.server
 
 import com.compiler.server.base.BaseExecutorTest
-import org.junit.jupiter.api.Test
+import com.compiler.server.base.TestCompiler
 
 class KotlinFeatureSince1370 : BaseExecutorTest() {
 
-  @Test
+  @TestCompiler
   fun `kotlin blog post 1370 feature 1`() {
     run(
       code = """
@@ -26,7 +26,7 @@ class KotlinFeatureSince1370 : BaseExecutorTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `kotlin blog post 1370 feature 2`() {
     run(
       code = """
@@ -47,7 +47,7 @@ class KotlinFeatureSince1370 : BaseExecutorTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `kotlin blog post 1370 feature 3`() {
     run(
       code = """
@@ -71,7 +71,7 @@ class KotlinFeatureSince1370 : BaseExecutorTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `kotlin blog post 1370 feature 4`() {
     run(
       code = """
@@ -90,7 +90,7 @@ class KotlinFeatureSince1370 : BaseExecutorTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `kotlin blog post 1370 feature 5`() {
     run(
       code = """

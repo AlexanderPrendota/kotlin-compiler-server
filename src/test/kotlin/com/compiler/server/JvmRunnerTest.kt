@@ -1,11 +1,11 @@
 package com.compiler.server
 
 import com.compiler.server.base.BaseExecutorTest
-import org.junit.jupiter.api.Test
+import com.compiler.server.base.TestCompiler
 
 class JvmRunnerTest : BaseExecutorTest() {
 
-  @Test
+  @TestCompiler
   fun `base execute test JVM`() {
     run(
       code = "fun main() {\n println(\"Hello, world!!!\")\n}",
@@ -13,7 +13,7 @@ class JvmRunnerTest : BaseExecutorTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `no main class jvm test`() {
     run(
       code = "fun main1() {\n    println(\"sdf\")\n}",
@@ -21,7 +21,7 @@ class JvmRunnerTest : BaseExecutorTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `base execute test JVM multi`() {
     run(
       code = listOf(
@@ -32,7 +32,7 @@ class JvmRunnerTest : BaseExecutorTest() {
     )
   }
 
-  @Test
+  @TestCompiler
   fun `correct kotlin version test jvm`() {
     run(
       code = "fun main() {\n    println(KotlinVersion?.CURRENT)\n}",

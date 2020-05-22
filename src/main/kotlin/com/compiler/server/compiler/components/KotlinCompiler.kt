@@ -5,9 +5,13 @@ import com.compiler.server.executor.ExecutorMessages
 import com.compiler.server.executor.JavaExecutor
 import com.compiler.server.model.*
 import com.compiler.server.model.bean.LibrariesFile
-import executors.JUnitExecutors
-import executors.JavaRunnerExecutor
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
+import com.compiler.server.model.toExceptionDescriptor
+import com.compiler.server.streaming.ServerStreamingOutputMapper
+import executors.streaming.JUnitStreamingExecutor
+import executors.synchronous.JUnitExecutor
+import executors.streaming.JavaStreamingRunnerExecutor
+import executors.synchronous.JavaRunnerExecutor
 import org.jetbrains.kotlin.codegen.ClassBuilderFactories
 import org.jetbrains.kotlin.codegen.KotlinCodegenFacade
 import org.jetbrains.kotlin.codegen.state.GenerationState
@@ -19,6 +23,7 @@ import org.jetbrains.kotlin.resolve.BindingContext
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.io.File
+import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
@@ -27,11 +32,11 @@ import java.util.*
 class KotlinCompiler(
   private val errorAnalyzer: ErrorAnalyzer,
   private val kotlinEnvironment: KotlinEnvironment,
-  private val javaExecutor: JavaExecutor,
   private val librariesFile: LibrariesFile,
   @Value("\${policy.file}") private val policyFileName: String
 ) {
 
+  private val streamingOutputMapper = ServerStreamingOutputMapper()
   private val policyFile = File(policyFileName)
 
   class Compiled(val files: Map<String, ByteArray> = emptyMap(), val mainClass: String? = null)
@@ -39,17 +44,35 @@ class KotlinCompiler(
   fun run(files: List<KtFile>, coreEnvironment: KotlinCoreEnvironment, args: String): ExecutionResult {
     return execute(files, coreEnvironment) { output, compiled ->
       val mainClass = JavaRunnerExecutor::class.java.name
-      val arguments = listOfNotNull(compiled.mainClass) + args.split(" ")
-      javaExecutor.execute(argsFrom(mainClass, output, arguments))
+      val arguments = listOfNotNull(compiled.mainClass) + args.split(ARGUMENTS_DELIMITER)
+      JavaExecutor.execute(argsFrom(mainClass, output, arguments))
         .asExecutionResult()
+    }
+  }
+
+  fun runStreaming(files: List<KtFile>, coreEnvironment: KotlinCoreEnvironment, args: String, output: OutputStream) {
+    executeStreaming(files, coreEnvironment, output) { outputFilesDir, compiled, outputStream ->
+      val mainClass = JavaStreamingRunnerExecutor::class.java.name
+      val arguments = listOfNotNull(compiled.mainClass) + args.split(ARGUMENTS_DELIMITER)
+      JavaExecutor.executeStreaming(argsFrom(mainClass, outputFilesDir, arguments), outputStream)
     }
   }
 
   fun test(files: List<KtFile>, coreEnvironment: KotlinCoreEnvironment): ExecutionResult {
     return execute(files, coreEnvironment) { output, _ ->
-      val mainClass = JUnitExecutors::class.java.name
-      javaExecutor.execute(argsFrom(mainClass, output, listOf(output.path.toString())))
+      val mainClass = JUnitExecutor::class.java.name
+      JavaExecutor.execute(argsFrom(mainClass, output, listOf(output.path.toString())))
         .asJUnitExecutionResult()
+    }
+  }
+
+  fun testStreaming(files: List<KtFile>, coreEnvironment: KotlinCoreEnvironment, args: String, output: OutputStream) {
+    executeStreaming(files, coreEnvironment, output) { outputFilesDir, _, outputStream ->
+      val mainClass = JUnitStreamingExecutor::class.java.name
+      JavaExecutor.executeStreaming(
+          argsFrom(mainClass, outputFilesDir, listOf(outputFilesDir.path.toString())),
+          outputStream
+      )
     }
   }
 
@@ -84,6 +107,35 @@ class KotlinCompiler(
       } else ExecutionResult(errors)
     } catch (e: Exception) {
       ExecutionResult(exception = e.toExceptionDescriptor())
+    }
+  }
+
+  private fun executeStreaming(
+    files: List<KtFile>,
+    coreEnvironment: KotlinCoreEnvironment,
+    output: OutputStream,
+    block: (outputFilesDir: OutputDirectory, compilation: Compiled, output: OutputStream) -> Unit
+  ) {
+    try {
+      val (errors, analysis) = errorAnalyzer.errorsFrom(files, coreEnvironment)
+      if (errorAnalyzer.isOnlyWarnings(errors)) {
+        val compilation = compile(files, analysis, coreEnvironment)
+        if (compilation.files.isEmpty()) {
+          output.write(streamingOutputMapper.writeStderrAsBytes(ExecutorMessages.NO_COMPILERS_FILE_FOUND))
+          return
+        }
+        val outputFilesDir = write(compilation)
+        try {
+          output.write(streamingOutputMapper.writeErrorsAsBytes(errors))
+          block(outputFilesDir, compilation, output)
+        } finally {
+          outputFilesDir.path.toAbsolutePath().toFile().deleteRecursively()
+        }
+      } else {
+        output.write(streamingOutputMapper.writeErrorsAsBytes(errors))
+      }
+    } catch (e: Exception) {
+        output.write(streamingOutputMapper.writeThrowableAsBytes(e))
     }
   }
 
@@ -144,4 +196,7 @@ class KotlinCompiler(
     }
   }
 
+  companion object {
+    private const val ARGUMENTS_DELIMITER = " "
+  }
 }

@@ -7,6 +7,7 @@ import com.compiler.server.model.bean.VersionInfo
 import org.apache.commons.logging.LogFactory
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.springframework.stereotype.Component
+import java.io.OutputStream
 
 @Component
 class KotlinProjectExecutor(
@@ -27,10 +28,24 @@ class KotlinProjectExecutor(
     }
   }
 
+  fun runStreaming(project: Project, output: OutputStream) {
+    kotlinEnvironment.environment { environment ->
+      val files = getFilesFrom(project, environment).map { it.kotlinFile }
+      kotlinCompiler.runStreaming(files, environment, project.args, output)
+    }
+  }
+
   fun test(project: Project): ExecutionResult {
     return kotlinEnvironment.environment { environment ->
       val files = getFilesFrom(project, environment).map { it.kotlinFile }
       kotlinCompiler.test(files, environment)
+    }
+  }
+
+  fun testStreaming(project: Project, output: OutputStream) {
+    kotlinEnvironment.environment { envirionment ->
+      val files = getFilesFrom(project, envirionment).map { it.kotlinFile }
+      kotlinCompiler.testStreaming(files, envirionment, project.args, output)
     }
   }
 

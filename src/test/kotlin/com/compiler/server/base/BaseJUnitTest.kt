@@ -8,14 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class BaseJUnitTest {
+class BaseJUnitTest : BaseTest() {
 
   @Autowired
   private lateinit var testRunner: TestProjectRunner
 
-  fun test(vararg test: String) = testRunner.test(*test)
+  fun test(vararg test: String) = when(mode) {
+    ExecutorMode.SYNCHRONOUS -> testRunner.test(*test)
+    ExecutorMode.STREAMING -> testRunner.testStreaming(*test)
+  }
 
-  fun testRaw(vararg test: String) = testRunner.testRaw(*test)
+  fun testRaw(vararg test: String): RawExecutionResult = when(mode) {
+    ExecutorMode.SYNCHRONOUS -> SynchronousResult(testRunner.testRaw(*test))
+    ExecutorMode.STREAMING -> StreamingResult(testRunner.testRawStreaming(*test))
+  }
 
   fun runKoanTest(vararg testFile: String) {
     val test = test(
