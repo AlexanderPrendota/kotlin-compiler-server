@@ -2,6 +2,7 @@ package com.compiler.server
 
 import com.compiler.server.base.BaseExecutorTest
 import com.compiler.server.model.JvmExecutionResult
+import kotlinx.coroutines.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -135,5 +136,108 @@ class JvmRunnerTest : BaseExecutorTest() {
       """.trimIndent(), "")
 
     assertContains(result.compilerDiagnostics.map { it.message }, "Variable is unused.")
+  }
+
+  @Test
+  fun `basic arithmetic operations`() {
+    run(
+      code = """
+        fun main() {
+          val a = 10
+          val b = 5
+          println("Addition: ${"$"}{a + b}")
+          println("Subtraction: ${"$"}{a - b}")
+          println("Multiplication: ${"$"}{a * b}")
+          println("Division: ${"$"}{a / b}")
+        }
+      """.trimIndent(),
+      contains = """
+        Addition: 15
+        Subtraction: 5
+        Multiplication: 50
+        Division: 2
+      """.trimIndent()
+    )
+  }
+
+  @Test
+  fun `collections operations`() {
+    run(
+      code = """
+        fun main() {
+          val numbers = mutableListOf(1, 2, 3, 4, 5)
+          numbers.add(6)
+          numbers.removeAt(0)
+          val filtered = numbers.filter { it % 2 == 0 }
+          val mapped = filtered.map { it * 2 }
+          println(mapped)
+        }
+      """.trimIndent(),
+      contains = "[4, 8, 12]"
+    )
+  }
+
+  @Test
+  fun `class instantiation and method calls`() {
+    run(
+      code = """
+        class Greeter(val name: String) {
+          fun greet(): String {
+            return "Hello, ${"$"}name!"
+          }
+        }
+
+        fun main() {
+          val greeter = Greeter("Kotlin")
+          println(greeter.greet())
+        }
+      """.trimIndent(),
+      contains = "Hello, Kotlin!"
+    )
+  }
+
+  @Test
+  fun `simple coroutine execution`() {
+    run(
+      code = """
+        import kotlinx.coroutines.*
+
+        fun main() = runBlocking {
+          var result = ""
+          val job = launch {
+            delay(100)
+            result = "Coroutine executed"
+          }
+          job.join()
+          println(result)
+        }
+      """.trimIndent(),
+      contains = "Coroutine executed"
+    )
+  }
+
+  @Test
+  fun `try catch block for runtime exception`() {
+    run(
+      code = """
+        fun main() {
+          var exceptionCaught = false
+          try {
+            val result = 10 / 0
+            println(result) // This line should not be reached
+          } catch (e: ArithmeticException) {
+            exceptionCaught = true
+            println("Caught ArithmeticException as expected")
+          } catch (e: Exception) {
+            println("Caught unexpected exception: ${"$"}{e.message}")
+          }
+          println("Exception caught: ${"$"}{exceptionCaught}")
+        }
+      """.trimIndent(),
+      contains = """
+        Caught ArithmeticException as expected
+        Exception caught: true
+      """.trimIndent()
+    )
   }
 }
